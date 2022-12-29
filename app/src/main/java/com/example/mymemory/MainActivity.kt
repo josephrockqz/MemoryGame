@@ -98,7 +98,11 @@ class MainActivity : AppCompatActivity() {
                 R.id.rbHard -> BoardSize.HARD
                 else -> BoardSize.EASY
             }
-            // Navigate to a new activity
+
+            /**
+             * Navigate to a new activity
+             * Explicit intent: launch other activities within your app
+             */
             val intent = Intent(this, CreateActivity::class.java)
             intent.putExtra(EXTRA_BOARD_SIZE, desiredBoardSize)
             startActivityForResult(intent, CREATE_REQUEST_CODE)
