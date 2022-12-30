@@ -1,5 +1,7 @@
 package com.example.mymemory
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -10,15 +12,12 @@ import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mymemory.models.BoardSize
 import com.example.mymemory.utils.EXTRA_BOARD_SIZE
 import com.example.mymemory.utils.isPermissionGranted
 import com.example.mymemory.utils.requestPermission
-import java.util.jar.Manifest
 
 class CreateActivity : AppCompatActivity() {
 
@@ -33,6 +32,7 @@ class CreateActivity : AppCompatActivity() {
     private lateinit var etGameName: EditText
     private lateinit var btnSave: Button
 
+    private lateinit var adapter: ImagePickerAdapter
     private lateinit var boardSize: BoardSize
     private var numImagesRequired = -1
     private val chosenImageUris = mutableListOf<Uri>()
@@ -48,9 +48,9 @@ class CreateActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         boardSize = intent.getSerializableExtra(EXTRA_BOARD_SIZE) as BoardSize
         numImagesRequired = boardSize.getNumPairs()
-        supportActionBar?.title = "Choose pics (0 / $numImagesRequired)"
+        supportActionBar?.title = "Choose pics (${chosenImageUris.size} / $numImagesRequired)"
 
-        rvImagePicker.adapter = ImagePickerAdapter(
+        adapter = ImagePickerAdapter(
             this,
             chosenImageUris,
             boardSize,
@@ -69,6 +69,7 @@ class CreateActivity : AppCompatActivity() {
                 }
             }
         )
+        rvImagePicker.adapter = adapter
         rvImagePicker.setHasFixedSize(true)
         rvImagePicker.layoutManager = GridLayoutManager(this, boardSize.getWidth())
     }
@@ -98,11 +99,41 @@ class CreateActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    @Deprecated("Replace with ActivityLauncher equivalent")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != PICK_PHOTO_CODE || resultCode != Activity.RESULT_OK || data == null) {
+            Log.w(TAG, "Did not get data back from the launched activity, user likely canceled flow")
+            return
+        }
+        val selectedUri = data.data
+        val clipData = data.clipData
+        if (clipData != null) {
+            Log.i(TAG, "clipData numImages ${clipData.itemCount}: $clipData")
+            for (i in 0 until clipData.itemCount) {
+                val clipItem = clipData.getItemAt(i)
+                if (chosenImageUris.size < numImagesRequired) {
+                    chosenImageUris.add(clipItem.uri)
+                }
+            }
+        } else if (selectedUri != null) {
+            Log.i(TAG, "data: $selectedUri")
+            chosenImageUris.add(selectedUri)
+        }
+        adapter.notifyDataSetChanged()
+        btnSave.isEnabled = shouldEnableSaveButton()
+    }
+
     private fun launchIntentForPhotos() {
         // Implicit intent: request to perform an action based on a desired action
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         startActivityForResult(Intent.createChooser(intent, "Choose pics"), PICK_PHOTO_CODE)
+    }
+
+    private fun shouldEnableSaveButton(): Boolean {
+        return (chosenImageUris.size == numImagesRequired && etGameName.length() > 0)
     }
 }
