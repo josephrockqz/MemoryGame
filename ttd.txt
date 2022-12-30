@@ -1,6 +1,6 @@
-Things to consider immplementing before publishing app:
+Things to consider implementing before publishing app:
     - Create custom app icon
-        - Use fiver or something
+        - Use fiverr or something
     - Turn on magnify (Proguard)
     - Add analytics
         - Can use Firebase
@@ -8,3 +8,10 @@ Things to consider immplementing before publishing app:
     - Consider translating strings
         - Put all hardcoded strings in res file
         - Have separate string res files for different languages
+    - Take screenshots to highlight application in play store
+    - For privacy policy:
+        - create Google doc
+            - can find templates online
+            - make sure doc is visible to everyone
+    - Look into search engine optimization
+    - Name of the app in the play store listing should resemble what people might be searching for
