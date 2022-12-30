@@ -147,6 +147,7 @@ class CreateActivity : AppCompatActivity() {
             chosenImageUris.add(selectedUri)
         }
         adapter.notifyDataSetChanged()
+        supportActionBar?.title = "Choose pics (${chosenImageUris.size} / $numImagesRequired)"
         btnSave.isEnabled = shouldEnableSaveButton()
     }
 
@@ -159,6 +160,9 @@ class CreateActivity : AppCompatActivity() {
     }
 
     private fun saveDataToFirebase() {
+        /**
+         * Not implementing Firebase part of project
+         */
         Log.i(TAG, "saveDataToFirebase")
         for ((index, photoUri) in chosenImageUris.withIndex()) {
             val imageByteArray = getImageByteArray(photoUri)
