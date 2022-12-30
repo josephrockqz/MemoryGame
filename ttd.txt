@@ -1,0 +1,10 @@
+Things to consider immplementing before publishing app:
+    - Create custom app icon
+        - Use fiver or something
+    - Turn on magnify (Proguard)
+    - Add analytics
+        - Can use Firebase
+    - Test on phones of various API versions
+    - Consider translating strings
+        - Put all hardcoded strings in res file
+        - Have separate string res files for different languages
